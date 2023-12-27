@@ -28,7 +28,7 @@ import org.kohsuke.stapler.QueryParameter
 import javax.annotation.Nonnull
 
 /**
- * Registers the [LeaderboardAction] to Jenkins as an extension and also works as an communication point between the
+ * Registers the [LeaderboardAction] to Jenkins as an extension and also works as a communication point between the
  * Jetty server and the [LeaderboardAction]. Actions normally have no [Descriptor], but it can be added. In this case
  * for rejecting Challenges.
  *

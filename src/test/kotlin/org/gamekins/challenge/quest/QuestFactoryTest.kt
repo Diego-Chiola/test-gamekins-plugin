@@ -199,7 +199,7 @@ class QuestFactoryTest : FeatureSpec({
         every { sourceDetail.jacocoSourceFile } returns File("")
         every { sourceDetail.parameters } returns Constants.Parameters()
         every { sourceDetail.fileName } returns "file"
-        every { JacocoUtil.generateDocument(any()) } returns mockkClass(Document::class)
+        every { JacocoUtil.generateJacocoDocument(any()) } returns mockkClass(Document::class)
         every { JacocoUtil.calculateCoveredLines(any(), any()) } returns 1
         scenario("Successful Generation")
         {
@@ -226,7 +226,7 @@ class QuestFactoryTest : FeatureSpec({
         every { sourceDetail.jacocoSourceFile } returns File("")
         every { sourceDetail.parameters } returns Constants.Parameters()
         every { sourceDetail.fileName } returns "file"
-        every { JacocoUtil.generateDocument(any()) } returns mockkClass(Document::class)
+        every { JacocoUtil.generateJacocoDocument(any()) } returns mockkClass(Document::class)
         every { JacocoUtil.calculateCoveredLines(any(), any()) } returns 1
         val line = mockkClass(Element::class)
         every { line.attr("class") } returns "fc"
@@ -261,7 +261,7 @@ class QuestFactoryTest : FeatureSpec({
         every { sourceDetail.jacocoSourceFile } returns File("")
         every { sourceDetail.parameters } returns Constants.Parameters()
         every { sourceDetail.fileName } returns "file"
-        every { JacocoUtil.generateDocument(any()) } returns mockkClass(Document::class)
+        every { JacocoUtil.generateJacocoDocument(any()) } returns mockkClass(Document::class)
         every { JacocoUtil.calculateCoveredLines(any(), any()) } returns 1
         val line = mockkClass(Element::class)
         every { line.attr("class") } returns "fc"
@@ -322,7 +322,7 @@ class QuestFactoryTest : FeatureSpec({
         every { line3.attr("id") } returns "L9"
         every { line3.attr("title") } returns ""
         every { line3.text() } returns "content"
-        every { JacocoUtil.generateDocument(any()) } returns mockkClass(Document::class)
+        every { JacocoUtil.generateJacocoDocument(any()) } returns mockkClass(Document::class)
         every { JacocoUtil.calculateCoveredLines(any(), any()) } returns 1
         every { JacocoUtil.chooseRandomLine(any(), any()) } returns line1 andThen null andThen line2 andThen line3
         every { property.getRejectedChallenges(any()) } returns CopyOnWriteArrayList()
@@ -390,7 +390,7 @@ class QuestFactoryTest : FeatureSpec({
         val method3 = JacocoUtil.CoverageMethod("method3", 10, 10, "7")
         val method4 = JacocoUtil.CoverageMethod("method4", 10, 5, "7")
         every { JacocoUtil.getMethodEntries(any()) } returns arrayListOf(method1, method2, method3, method4)
-        every { JacocoUtil.generateDocument(any()) } returns mockkClass(Document::class)
+        every { JacocoUtil.generateJacocoDocument(any()) } returns mockkClass(Document::class)
         every { JacocoUtil.calculateCoveredLines(any(), any()) } returns 1
         every { sourceDetail.jacocoSourceFile } returns File("")
         every { sourceDetail.parameters } returns parameters

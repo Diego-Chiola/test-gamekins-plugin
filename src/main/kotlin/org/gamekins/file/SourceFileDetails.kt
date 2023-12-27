@@ -31,7 +31,7 @@ import java.io.File
 class SourceFileDetails(parameters: Parameters,
                         filePath: String,
                         listener: TaskListener = TaskListener.NULL)
-    : FileDetails(parameters, filePath)  {
+    : FileDetails(parameters, filePath, listener)  {
 
     val coverage: Double
     val jacocoCSVFile: File
@@ -40,7 +40,6 @@ class SourceFileDetails(parameters: Parameters,
 
     init {
         val pathSplit = filePath.split("/".toRegex())
-
         //Build the paths to the JaCoCo files
         val jacocoPath = StringBuilder(parameters.remote)
         var i = 0
@@ -48,6 +47,7 @@ class SourceFileDetails(parameters: Parameters,
             if (pathSplit[i].isNotEmpty()) jacocoPath.append("/").append(pathSplit[i])
             i++
         }
+
         jacocoCSVFile = File(jacocoPath.toString() + parameters.jacocoCSVPath.substring(2))
         if (!jacocoCSVFile.exists()) {
             listener.logger.println("[Gamekins] JaCoCoCSVPath: " + jacocoCSVFile.absolutePath

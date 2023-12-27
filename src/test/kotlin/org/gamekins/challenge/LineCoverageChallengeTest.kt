@@ -60,7 +60,7 @@ class LineCoverageChallengeTest : FeatureSpec({
         mockkStatic(JacocoUtil::class)
         every { JacocoUtil.calculateCurrentFilePath(any(), any()) } returns path
         every { JacocoUtil.getCoverageInPercentageFromJacoco(any(), any()) } returns coverage
-        every { JacocoUtil.generateDocument(any()) } returns document
+        every { JacocoUtil.generateJacocoDocument(any()) } returns document
         every { JacocoUtil.calculateCoveredLines(any(), any()) } returns 0
         every { JacocoUtil.getLines(any()) }  returns elements
         every { element.attr("id") } returns "L5"

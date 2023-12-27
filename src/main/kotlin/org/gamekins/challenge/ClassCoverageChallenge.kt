@@ -21,6 +21,7 @@ import hudson.model.TaskListener
 import org.gamekins.file.SourceFileDetails
 import org.gamekins.util.Constants
 import org.gamekins.util.JacocoUtil
+import org.gamekins.util.JsoupUtil
 import org.jsoup.nodes.Document
 
 /**
@@ -72,14 +73,14 @@ class ClassCoverageChallenge(data: Challenge.ChallengeGenerationData)
         if (!details.update(parameters).filesExists()) return false
 
         val jacocoSourceFile = JacocoUtil.calculateCurrentFilePath(parameters.workspace,
-                details.jacocoSourceFile, details.parameters.remote)
+            details.jacocoSourceFile, details.parameters.remote)
         val document: Document = try {
             if (!jacocoSourceFile.exists()) {
                 listener.logger.println("[Gamekins] JaCoCo source file "
                         + jacocoSourceFile.remote + Constants.EXISTS + jacocoSourceFile.exists())
                 return true
             }
-            JacocoUtil.generateDocument(jacocoSourceFile)
+            JsoupUtil.generateDocument(jacocoSourceFile)
         } catch (e: Exception) {
             e.printStackTrace(listener.logger)
             return false
@@ -102,7 +103,7 @@ class ClassCoverageChallenge(data: Challenge.ChallengeGenerationData)
                 JacocoUtil.calculateCurrentFilePath(parameters.workspace, details.jacocoCSVFile,
                         details.parameters.remote), details.parameters.branch)
 
-        val document = JacocoUtil.generateDocument(jacocoSourceFile, jacocoCSVFile, listener) ?: return false
+        val document = JacocoUtil.generateJacocoDocument(jacocoSourceFile, jacocoCSVFile, listener) ?: return false
 
         val fullyCoveredLines = JacocoUtil.calculateCoveredLines(document, "fc")
         if (fullyCoveredLines > this.fullyCoveredLines) {

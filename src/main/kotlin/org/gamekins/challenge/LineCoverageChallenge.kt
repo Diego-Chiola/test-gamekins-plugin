@@ -134,7 +134,7 @@ class LineCoverageChallenge(data: Challenge.ChallengeGenerationData)
                 details.parameters.remote)
         if (!jacocoSourceFile.exists() || !jacocoCSVFile.exists()) return true
 
-        val document = JacocoUtil.generateDocument(jacocoSourceFile, jacocoCSVFile, listener) ?: return false
+        val document = JacocoUtil.generateJacocoDocument(jacocoSourceFile, jacocoCSVFile, listener) ?: return false
 
         val elements = document.select("span." + "pc")
         elements.addAll(document.select("span." + "nc"))
@@ -155,7 +155,7 @@ class LineCoverageChallenge(data: Challenge.ChallengeGenerationData)
                 JacocoUtil.calculateCurrentFilePath(parameters.workspace, details.jacocoCSVFile,
                         details.parameters.remote), details.parameters.branch)
 
-        val document = JacocoUtil.generateDocument(jacocoSourceFile, jacocoCSVFile, listener) ?: return false
+        val document = JacocoUtil.generateJacocoDocument(jacocoSourceFile, jacocoCSVFile, listener) ?: return false
 
         val elements = document.select("span." + "fc")
         elements.addAll(document.select("span." + "pc"))

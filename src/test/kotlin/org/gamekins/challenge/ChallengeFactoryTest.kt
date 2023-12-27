@@ -88,7 +88,7 @@ class ChallengeFactoryTest : FeatureSpec({
         every { property.getCompletedChallenges(any()) } returns CopyOnWriteArrayList()
         every { JacocoUtil.calculateCurrentFilePath(any(), any()) } returns path
         every { JacocoUtil.getCoverageInPercentageFromJacoco(any(), any()) } returns coverage
-        every { JacocoUtil.generateDocument(any()) } returns document
+        every { JacocoUtil.generateJacocoDocument(any()) } returns document
         every { JacocoUtil.calculateCoveredLines(any(), any()) } returns 0
         every { JUnitUtil.getTestCount(any(), any()) } returns testCount
         val commit = mockkClass(RevCommit::class)

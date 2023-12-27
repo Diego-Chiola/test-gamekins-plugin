@@ -17,6 +17,8 @@
 package org.gamekins.file
 
 import hudson.FilePath
+import hudson.model.TaskListener
+import org.gamekins.util.Constants
 import org.gamekins.util.Constants.Parameters
 import org.gamekins.util.GitUtil
 import org.gamekins.util.JacocoUtil
@@ -36,17 +38,28 @@ import java.nio.charset.Charset
  * @author Philipp Straubinger
  * @since 0.4
  */
-abstract class FileDetails(var parameters: Parameters, val filePath: String)
-    : Serializable, ClientInputFile {
+abstract class FileDetails(var parameters: Parameters, val filePath: String,
+                           val listener: TaskListener = TaskListener.NULL) : Serializable, ClientInputFile {
 
     val changedByUsers: HashSet<GitUtil.GameUser> = hashSetOf()
     val file: File
     val fileName: String
     val fileExtension: String
     val packageName: String
+    val checkstyleHTMLFile: File
 
     init {
         val pathSplit = filePath.split("/".toRegex())
+
+        //Build path to checkstyle html file
+        val checkstylePath = StringBuilder(parameters.remote)
+
+        checkstyleHTMLFile = File(checkstylePath.toString() + parameters.checkstyleResultsPath.substring(2))
+        if (!checkstyleHTMLFile.exists() && listener != TaskListener.NULL) {
+            listener.logger.println("[Gamekins] checkstyleHTMLPath: " + checkstyleHTMLFile.absolutePath
+                    + Constants.EXISTS + checkstyleHTMLFile.exists())
+        }
+
         //Compute class, package and extension name
         val lastPartOfFile = pathSplit[pathSplit.size - 1]
         fileName = lastPartOfFile.split("\\.".toRegex())[0]
@@ -85,7 +98,7 @@ abstract class FileDetails(var parameters: Parameters, val filePath: String)
      * Check whether the file exists.
      */
     open fun filesExists(): Boolean {
-        return file.exists()
+        return file.exists() && checkstyleHTMLFile.exists()
     }
 
     override fun getCharset(): Charset? {

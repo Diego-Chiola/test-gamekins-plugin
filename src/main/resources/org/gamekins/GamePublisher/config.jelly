@@ -8,4 +8,8 @@
     <f:entry title="Path to jacoco.csv" field="jacocoCSVPath" help="/plugin/gamekins/help/help-jacocoCSVPath.html">
         <f:textbox />
     </f:entry>
+
+    <f:entry title="Path to checkstyle.html" field="checkstyleResultsPath" help="/plugin/gamekins/help/help-checkstyleResultsPath.html">
+        <f:textbox />
+    </f:entry>
 </j:jelly>

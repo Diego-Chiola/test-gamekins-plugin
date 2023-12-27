@@ -227,6 +227,7 @@ object Constants {
         var generated: Int = 0,
         var jacocoCSVPath: String = "",
         var jacocoResultsPath: String = "",
+        var checkstyleResultsPath: String = "",
         var projectCoverage: Double = 0.0,
         var projectName: String = "",
         var projectTests: Int = 0,

@@ -209,12 +209,12 @@ class PublisherUtilTest : FeatureSpec( {
     feature("doCheckJacocoCSVPath") {
         scenario("Folder contains file")
         {
-            PublisherUtil.doCheckJacocoCSVPath(path, jacocoCSVPath) shouldBe true
+            PublisherUtil.doCheckFilePath(path, jacocoCSVPath) shouldBe true
         }
 
         scenario("Folder does not contain file")
         {
-            PublisherUtil.doCheckJacocoCSVPath(FilePath(null, path.remote + "/src"), jacocoCSVPath) shouldBe false
+            PublisherUtil.doCheckFilePath(FilePath(null, path.remote + "/src"), jacocoCSVPath) shouldBe false
         }
     }
 
@@ -226,7 +226,7 @@ class PublisherUtilTest : FeatureSpec( {
         every { filepathLinux.remote } returns jacocoCSVPath
         scenario("Linux-style path")
         {
-            PublisherUtil.doCheckJacocoCSVPath(pathLinux, jacocoCSVPath) shouldBe true
+            PublisherUtil.doCheckFilePath(pathLinux, jacocoCSVPath) shouldBe true
         }
 
         val filepathWin = mockkClass(FilePath::class)
@@ -236,7 +236,7 @@ class PublisherUtilTest : FeatureSpec( {
         every { filepathWin.remote } returns jacocoCSVPath.replace('/', '\\')
         scenario("Windows-style path")
         {
-            PublisherUtil.doCheckJacocoCSVPath(pathWin, jacocoCSVPath) shouldBe true
+            PublisherUtil.doCheckFilePath(pathWin, jacocoCSVPath) shouldBe true
         }
     }
 

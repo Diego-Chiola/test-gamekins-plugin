@@ -261,13 +261,13 @@ object PublisherUtil {
     }
 
     /**
-     * Checks whether the path of the JaCoCo csv file [jacocoCSVPath] exists in the [workspace].
+     * Checks whether the path of the file [filePath] exists in the [workspace].
      */
     @JvmStatic
-    fun doCheckJacocoCSVPath(workspace: FilePath, jacocoCSVPath: String): Boolean {
-        var csvPath = jacocoCSVPath
-        if (csvPath.startsWith("**")) csvPath = csvPath.substring(2)
-        val split = csvPath.split("/".toRegex())
+    fun doCheckFilePath(workspace: FilePath, filePath: String): Boolean {
+        var path = filePath
+        if (path.startsWith("**")) path = path.substring(2)
+        val split = path.split("/".toRegex())
         val files: List<FilePath> = try {
             workspace.act(
                     FilesOfAllSubDirectoriesCallable(workspace, split[split.size - 1]))
@@ -275,7 +275,7 @@ object PublisherUtil {
             return false
         }
         for (file in files) {
-            if (file.remote.endsWith(csvPath) || file.remote.endsWith(csvPath.replace("/", "\\"))) {
+            if (file.remote.endsWith(path) || file.remote.endsWith(path.replace("/", "\\"))) {
                 return true
             }
         }

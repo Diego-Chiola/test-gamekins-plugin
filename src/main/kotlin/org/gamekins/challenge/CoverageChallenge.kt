@@ -20,6 +20,7 @@ import hudson.FilePath
 import org.gamekins.file.SourceFileDetails
 import org.gamekins.util.JacocoUtil
 import org.gamekins.util.Constants.Parameters
+import org.gamekins.util.JsoupUtil
 import java.io.File
 
 /**
@@ -45,7 +46,7 @@ abstract class CoverageChallenge(var details: SourceFileDetails, workspace: File
      * Calculates the number of fully, partially and not covered lines, and the coverage of the class itself.
      */
     init {
-        val document = JacocoUtil.generateDocument(JacocoUtil.calculateCurrentFilePath(workspace!!,
+        val document = JsoupUtil.generateDocument(JacocoUtil.calculateCurrentFilePath(workspace!!,
                 details.jacocoSourceFile, details.parameters.remote))
         fullyCoveredLines = JacocoUtil.calculateCoveredLines(document, "fc")
         partiallyCoveredLines = JacocoUtil.calculateCoveredLines(document, "pc")
@@ -118,7 +119,7 @@ abstract class CoverageChallenge(var details: SourceFileDetails, workspace: File
     }
 
     override fun update(parameters: Parameters) {
-        val document = JacocoUtil.generateDocument(JacocoUtil.calculateCurrentFilePath(parameters.workspace,
+        val document = JsoupUtil.generateDocument(JacocoUtil.calculateCurrentFilePath(parameters.workspace,
             details.jacocoSourceFile, details.parameters.remote))
         fullyCoveredLines = JacocoUtil.calculateCoveredLines(document, "fc")
         partiallyCoveredLines = JacocoUtil.calculateCoveredLines(document, "pc")

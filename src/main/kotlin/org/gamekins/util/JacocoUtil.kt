@@ -164,19 +164,10 @@ object JacocoUtil {
     }
 
     /**
-     * Generates the Jsoup document of a HTML [file].
-     */
-    @JvmStatic
-    @Throws(IOException::class, InterruptedException::class)
-    fun generateDocument(file: FilePath): Document {
-        return Jsoup.parse(file.readToString())
-    }
-
-    /**
      * Tries to generate the [Document] representation of the [jacocoSourceFile] if both the [jacocoSourceFile] and
      * the [jacocoCSVFile] exists.
      */
-    fun generateDocument(jacocoSourceFile: FilePath, jacocoCSVFile: FilePath, listener: TaskListener): Document? {
+    fun generateJacocoDocument(jacocoSourceFile: FilePath, jacocoCSVFile: FilePath, listener: TaskListener): Document? {
         return try {
             if (!jacocoSourceFile.exists() || !jacocoCSVFile.exists()) {
                 listener.logger.println("[Gamekins] JaCoCo source file " + jacocoSourceFile.remote
@@ -185,7 +176,7 @@ object JacocoUtil {
                         + Constants.EXISTS + jacocoCSVFile.exists())
                 return null
             }
-            generateDocument(jacocoSourceFile)
+            JsoupUtil.generateDocument(jacocoSourceFile)
         } catch (e: Exception) {
             e.printStackTrace(listener.logger)
             return null
@@ -263,7 +254,7 @@ object JacocoUtil {
             calculateCurrentFilePath(parameters.workspace, details.jacocoCSVFile,
                 details.parameters.remote), details.parameters.branch)
 
-        val document = generateDocument(jacocoSourceFile, jacocoCSVFile, listener) ?: return -1
+        val document = generateJacocoDocument(jacocoSourceFile, jacocoCSVFile, listener) ?: return -1
 
         val elements = document.select("span." + "fc")
         elements.addAll(document.select("span." + "pc"))
@@ -366,7 +357,7 @@ object JacocoUtil {
     @JvmStatic
     @Throws(IOException::class, InterruptedException::class)
     fun getMethodEntries(jacocoMethodFile: FilePath): ArrayList<CoverageMethod> {
-        val elements = generateDocument(jacocoMethodFile).select("tr")
+        val elements = JsoupUtil.generateDocument(jacocoMethodFile).select("tr")
         val methods = ArrayList<CoverageMethod>()
 
         for (element in elements) {

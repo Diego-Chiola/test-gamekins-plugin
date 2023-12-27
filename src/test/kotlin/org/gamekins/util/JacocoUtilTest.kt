@@ -72,17 +72,17 @@ class JacocoUtilTest : FeatureSpec({
     feature("calculateCoveredLines") {
         scenario("Fully covered")
         {
-            JacocoUtil.calculateCoveredLines(JacocoUtil.generateDocument(jacocoSourceFile), "fc") shouldBe 5
+            JacocoUtil.calculateCoveredLines(JsoupUtil.generateDocument(jacocoSourceFile), "fc") shouldBe 5
         }
 
         scenario("Partially covered")
         {
-            JacocoUtil.calculateCoveredLines(JacocoUtil.generateDocument(jacocoSourceFile), "pc") shouldBe 1
+            JacocoUtil.calculateCoveredLines(JsoupUtil.generateDocument(jacocoSourceFile), "pc") shouldBe 1
         }
 
         scenario("Not covered")
         {
-            JacocoUtil.calculateCoveredLines(JacocoUtil.generateDocument(jacocoSourceFile), "nc") shouldBe 54
+            JacocoUtil.calculateCoveredLines(JsoupUtil.generateDocument(jacocoSourceFile), "nc") shouldBe 54
         }
     }
 
@@ -130,7 +130,7 @@ class JacocoUtilTest : FeatureSpec({
     }
 
     feature("generateDocument") {
-        JacocoUtil.generateDocument(FilePath(null, path.remote + "/target/site/jacoco/index.html")) shouldNotBe null
+        JsoupUtil.generateDocument(FilePath(null, path.remote + "/target/site/jacoco/index.html")) shouldNotBe null
     }
 
     feature("getCoverageInPercentageFromJacoco") {

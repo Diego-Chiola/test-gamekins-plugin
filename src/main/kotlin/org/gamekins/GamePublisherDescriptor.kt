@@ -74,7 +74,7 @@ class GamePublisherDescriptor : BuildStepDescriptor<Publisher?>(GamePublisher::c
         if (project?.someWorkspace == null) {
             return FormValidation.ok()
         }
-        return if (PublisherUtil.doCheckJacocoCSVPath(project.someWorkspace!!, jacocoCSVPath!!))
+        return if (PublisherUtil.doCheckFilePath(project.someWorkspace!!, jacocoCSVPath!!))
             FormValidation.ok()
         else FormValidation.error("The file could not be found")
     }
@@ -90,6 +90,19 @@ class GamePublisherDescriptor : BuildStepDescriptor<Publisher?>(GamePublisher::c
         return if (PublisherUtil.doCheckJacocoResultsPath(project.someWorkspace!!, jacocoResultsPath!!))
             FormValidation.ok()
         else FormValidation.error("The folder is not correct")
+    }
+
+    /**
+     * Checks whether the path of the checkstyle.html file [checkstyleResultsPath] exists in the [project].
+     */
+    fun doCheckCheckstyleResultsPath(@AncestorInPath project: AbstractProject<*, *>?,
+                             @QueryParameter checkstyleResultsPath: String?): FormValidation {
+        if (project?.someWorkspace == null) {
+            return FormValidation.ok()
+        }
+        return if (PublisherUtil.doCheckFilePath(project.someWorkspace!!, checkstyleResultsPath!!))
+            FormValidation.ok()
+        else FormValidation.error("The file could not be found")
     }
 
     @Nonnull
@@ -133,12 +146,13 @@ class GamePublisherDescriptor : BuildStepDescriptor<Publisher?>(GamePublisher::c
      * Adds the built-in [Challenge]s to the [HashMap] [challenges] for generation.
      */
     private fun initChallengesMap() {
-        challenges[ClassCoverageChallenge::class.java] = 2
-        challenges[LineCoverageChallenge::class.java] = 4
-        challenges[MethodCoverageChallenge::class.java] = 3
+        challenges[ClassCoverageChallenge::class.java] = 1 //2
+        challenges[LineCoverageChallenge::class.java] = 1 //4
+        challenges[MethodCoverageChallenge::class.java] = 1 //3
         challenges[TestChallenge::class.java] = 1
-        challenges[MutationChallenge::class.java] = 6
-        challenges[SmellChallenge::class.java] = 4
+        challenges[MutationChallenge::class.java] = 1 //6
+        challenges[SmellChallenge::class.java] = 1 //4
+        challenges[CheckStyleChallenge::class.java] = 9
     }
 
     /**

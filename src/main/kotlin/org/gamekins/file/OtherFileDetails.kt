@@ -16,7 +16,9 @@
 
 package org.gamekins.file
 
+import hudson.model.TaskListener
 import org.gamekins.util.Constants
+import java.io.File
 
 /**
  * The internal representation of other files than [SourceFileDetails] and [TestFileDetails].
@@ -27,7 +29,8 @@ import org.gamekins.util.Constants
  * @author Philipp Straubinger
  * @since 0.5
  */
-class OtherFileDetails(parameters: Constants.Parameters, filePath: String) : FileDetails(parameters, filePath) {
+class OtherFileDetails(parameters: Constants.Parameters, filePath: String, listener: TaskListener)
+    : FileDetails(parameters, filePath) {
 
     override fun isTest(): Boolean {
         return false

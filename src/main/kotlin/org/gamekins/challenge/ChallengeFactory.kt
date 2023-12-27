@@ -145,6 +145,15 @@ object ChallengeFactory {
                         continue
                     }
                     selectClass(tempList, initializeRankSelection(tempList))
+                } else if (challengeClass == CheckStyleChallenge::class.java) {
+                    val tempList = workList.filter { element ->
+                        !element.filePath.endsWith(".kt")
+                    }
+                    if (tempList.isEmpty()) {
+                        challenge = null
+                        continue
+                    }
+                    selectClass(tempList, initializeRankSelection(tempList))
                 } else {
                     selectClass(workList, initializeRankSelection(workList))
                 }
@@ -186,36 +195,7 @@ object ChallengeFactory {
 
             val data = ChallengeGenerationData(parameters, user, selectedFile, listener)
 
-            when {
-                challengeClass == TestChallenge::class.java -> {
-                    challenge = generateTestChallenge(data, parameters, listener)
-                }
-                challengeClass.superclass == CoverageChallenge::class.java -> {
-                    listener.logger.println(
-                        TRY_CLASS + selectedFile.fileName + AND_TYPE
-                                + challengeClass
-                    )
-                    challenge = generateCoverageChallenge(data, challengeClass)
-                }
-                challengeClass == MutationChallenge::class.java -> {
-                    listener.logger.println(
-                        TRY_CLASS + selectedFile.fileName + AND_TYPE
-                                + challengeClass
-                    )
-                    challenge = generateMutationChallenge(selectedFile as SourceFileDetails, parameters,
-                        listener, user)
-                }
-                challengeClass == SmellChallenge::class.java -> {
-                    listener.logger.println(
-                        TRY_CLASS + selectedFile.fileName + AND_TYPE
-                                + challengeClass
-                    )
-                    challenge = generateSmellChallenge(data, listener)
-                }
-                else -> {
-                    challenge = generateThirdPartyChallenge(data, challengeClass)
-                }
-            }
+            challenge = callChallengeConstructor(challengeClass, data, parameters, listener, selectedFile, user)
 
             if (rejectedChallenges.any { it.first == challenge }) {
                 listener.logger.println("[Gamekins] Challenge ${challenge?.toEscapedString()} was already " +
@@ -238,6 +218,61 @@ object ChallengeFactory {
     }
 
     /**
+     * Call the constructor of the given challenge type of [challengeClass]
+     */
+    private fun callChallengeConstructor(
+        challengeClass: Class<out Challenge>, data: ChallengeGenerationData,
+        parameters: Parameters, listener: TaskListener, selectedFile: FileDetails, user: User
+    ): Challenge? {
+        val challenge: Challenge?
+        when {
+            challengeClass == TestChallenge::class.java -> {
+                challenge = generateTestChallenge(data, parameters, listener)
+            }
+
+            challengeClass.superclass == CoverageChallenge::class.java -> {
+                listener.logger.println(
+                    TRY_CLASS + selectedFile.fileName + AND_TYPE
+                            + challengeClass
+                )
+                challenge = generateCoverageChallenge(data, challengeClass)
+            }
+
+            challengeClass == MutationChallenge::class.java -> {
+                listener.logger.println(
+                    TRY_CLASS + selectedFile.fileName + AND_TYPE
+                            + challengeClass
+                )
+                challenge = generateMutationChallenge(
+                    selectedFile as SourceFileDetails, parameters,
+                    listener, user
+                )
+            }
+
+            challengeClass == SmellChallenge::class.java -> {
+                listener.logger.println(
+                    TRY_CLASS + selectedFile.fileName + AND_TYPE
+                            + challengeClass
+                )
+                challenge = generateSmellChallenge(data, listener)
+            }
+
+            challengeClass == CheckStyleChallenge::class.java -> {
+                listener.logger.println(
+                    TRY_CLASS + selectedFile.fileName + AND_TYPE
+                            + challengeClass
+                )
+                challenge = generateCheckStyleChallenge(data, listener)
+            }
+
+            else -> {
+                challenge = generateThirdPartyChallenge(data, challengeClass)
+            }
+        }
+        return challenge
+    }
+
+    /**
      * Generates a new [CoverageChallenge] of type [challengeClass] for the current class with details classDetails
      * and the current branch. The workspace is the folder with the code and execution rights, and the listener
      * reports the events to the console output of Jenkins.
@@ -248,7 +283,7 @@ object ChallengeFactory {
 
         if (data.selectedFile !is SourceFileDetails) return null
         val document: Document = try {
-            JacocoUtil.generateDocument(
+            JsoupUtil.generateDocument(
                 JacocoUtil.calculateCurrentFilePath(
                     data.parameters.workspace,
                     data.selectedFile.jacocoSourceFile, data.selectedFile.parameters.remote
@@ -438,6 +473,30 @@ object ChallengeFactory {
         if (issues.isEmpty()) return null
 
         return SmellChallenge(data.selectedFile, issues[Random.nextInt(issues.size)])
+    }
+
+    /**
+     * Generates a new [CheckStyleChallenge] according the current [data]. Gets all style errors of a file,
+     * chooses one of them randomly and then takes all the errors of the same rule type for generation
+     */
+    private fun generateCheckStyleChallenge(data: ChallengeGenerationData, listener: TaskListener)
+    : CheckStyleChallenge? {
+        val checkstyleSourceFile = JacocoUtil.calculateCurrentFilePath(data.parameters.workspace,
+            data.selectedFile!!.checkstyleHTMLFile, data.selectedFile.parameters.remote)
+        val filePath = JacocoUtil.calculateCurrentFilePath(data.parameters.workspace,
+            data.selectedFile.file, data.selectedFile.parameters.remote)
+
+        val document: Document = try {
+            if (!checkstyleSourceFile.exists() || !filePath.exists()) return null
+            JsoupUtil.generateDocument(checkstyleSourceFile)
+        } catch (e: Exception) {
+            e.printStackTrace(listener.logger)
+            return null
+        }
+        var errorsList = CheckstyleUtil.getFileStyleErrors(document, filePath, listener) ?: return null
+        errorsList = CheckstyleUtil.getErrorsByRule(errorsList, errorsList.random().rule)
+
+        return CheckStyleChallenge(data, errorsList)
     }
 
     /**

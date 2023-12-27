@@ -48,9 +48,10 @@ import javax.annotation.Nonnull
  * @author Philipp Straubinger
  * @since 0.1
  */
-
-class GamePublisher @DataBoundConstructor constructor(@set:DataBoundSetter var jacocoResultsPath: String?,
-                                                      @set:DataBoundSetter var jacocoCSVPath: String?)
+//@set:DataBoundSetter
+class GamePublisher @DataBoundConstructor constructor(var jacocoResultsPath: String?,
+                                                      var jacocoCSVPath: String?,
+                                                      var checkstyleResultsPath: String?)
     : Notifier(), SimpleBuildStep, StaplerProxy {
 
     /**
@@ -75,15 +76,21 @@ class GamePublisher @DataBoundConstructor constructor(@set:DataBoundSetter var j
 
         EventHandler.addEvent(BuildStartedEvent(parameters.projectName, parameters.branch, run))
 
-        //Checks whether the paths of the JaCoCo files are correct
+        //Checks whether the paths of the JaCoCo files and checkstyle file are correct
         if (!PublisherUtil.doCheckJacocoResultsPath(parameters.workspace, parameters.jacocoResultsPath)) {
             listener.logger.println("[Gamekins] JaCoCo folder is not correct")
             PublisherUtil.generateBuildAndTestChallenges(parameters, result, listener)
             EventHandler.addEvent(BuildFinishedEvent(parameters.projectName, parameters.branch, run))
             return
         }
-        if (!PublisherUtil.doCheckJacocoCSVPath(parameters.workspace, parameters.jacocoCSVPath)) {
+        if (!PublisherUtil.doCheckFilePath(parameters.workspace, parameters.jacocoCSVPath)) {
             listener.logger.println("[Gamekins] JaCoCo csv file could not be found")
+            PublisherUtil.generateBuildAndTestChallenges(parameters, result, listener)
+            EventHandler.addEvent(BuildFinishedEvent(parameters.projectName, parameters.branch, run))
+            return
+        }
+        if (!PublisherUtil.doCheckFilePath(parameters.workspace, parameters.checkstyleResultsPath)) {
+            listener.logger.println("[Gamekins] checkstyle html file could not be found")
             PublisherUtil.generateBuildAndTestChallenges(parameters, result, listener)
             EventHandler.addEvent(BuildFinishedEvent(parameters.projectName, parameters.branch, run))
             return
@@ -155,9 +162,8 @@ class GamePublisher @DataBoundConstructor constructor(@set:DataBoundSetter var j
             listener.logger.println(Constants.NOT_ACTIVATED)
             return true
         }
-
         val parameters = Parameters(jacocoCSVPath = jacocoCSVPath!!, jacocoResultsPath = jacocoResultsPath!!,
-            workspace = build.workspace!!)
+            checkstyleResultsPath = checkstyleResultsPath!!, workspace = build.workspace!!)
         parameters.projectName = build.project.fullName
         parameters.currentChallengesCount = build.project.getProperty(GameJobProperty::class.java)
             .currentChallengesCount
@@ -185,7 +191,8 @@ class GamePublisher @DataBoundConstructor constructor(@set:DataBoundSetter var j
     ) {
 
         val parameters = Parameters(jacocoCSVPath = jacocoCSVPath!!,
-            jacocoResultsPath = jacocoResultsPath!!, workspace = workspace)
+            jacocoResultsPath = jacocoResultsPath!!, workspace = workspace,
+            checkstyleResultsPath = checkstyleResultsPath!!)
         if (run.parent.parent is WorkflowMultiBranchProject) {
             val project = run.parent.parent as WorkflowMultiBranchProject
             if (project.properties.get(GameMultiBranchProperty::class.java) == null

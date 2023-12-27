@@ -202,6 +202,7 @@ object GitUtil {
                 //Not interested in merge commits
                 if (commit.shortMessage.lowercase(Locale.getDefault()).contains("merge")) continue
 
+
                 val diff = getDiffOfCommit(git, repo, commit)
                 val lines = diff.split("\n".toRegex())
                 for (i in lines.indices) {
@@ -244,7 +245,7 @@ object GitUtil {
                                     SourceFileDetails(parameters, path, listener)
                                 }
                                 else -> {
-                                    OtherFileDetails(parameters, path)
+                                    OtherFileDetails(parameters, path, listener)
                                 }
                             }
                             details.addUser(user)

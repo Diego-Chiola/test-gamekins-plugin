@@ -52,7 +52,7 @@ class ClassCoverageChallengeTest : FeatureSpec({
         val document = mockkClass(Document::class)
         every { JacocoUtil.calculateCurrentFilePath(any(), any()) } returns path
         every { JacocoUtil.getCoverageInPercentageFromJacoco(any(), any()) } returns coverage
-        every { JacocoUtil.generateDocument(any()) } returns document
+        every { JacocoUtil.generateJacocoDocument(any()) } returns document
         every { JacocoUtil.calculateCoveredLines(any(), any()) } returns 0
         details = SourceFileDetails(parameters, shortFilePath, listener)
         every { data.selectedFile } returns details
