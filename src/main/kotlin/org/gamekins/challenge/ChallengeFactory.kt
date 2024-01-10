@@ -27,6 +27,7 @@ import org.gamekins.event.EventHandler
 import org.gamekins.event.user.ChallengeGeneratedEvent
 import org.gamekins.file.FileDetails
 import org.gamekins.file.SourceFileDetails
+import org.gamekins.file.TestFileDetails
 import org.gamekins.util.*
 import org.gamekins.util.Constants.AND_TYPE
 import org.gamekins.util.Constants.Parameters
@@ -493,7 +494,11 @@ object ChallengeFactory {
             e.printStackTrace(listener.logger)
             return null
         }
-        var errorsList = CheckstyleUtil.getFileStyleErrors(document, filePath, listener) ?: return null
+        var errorsList = CheckstyleUtil.getFileStyleErrors(document, filePath) ?: return null
+        if (data.selectedFile is TestFileDetails) {
+            errorsList = CheckstyleUtil.excludeRuleFromErrorsList(errorsList, "MissingJavadocMethod")
+            if (errorsList.isEmpty()) return null
+        }
         errorsList = CheckstyleUtil.getErrorsByRule(errorsList, errorsList.random().rule)
 
         return CheckStyleChallenge(data, errorsList)

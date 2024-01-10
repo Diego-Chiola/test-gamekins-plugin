@@ -38,8 +38,8 @@ import java.nio.charset.Charset
  * @author Philipp Straubinger
  * @since 0.4
  */
-abstract class FileDetails(var parameters: Parameters, val filePath: String,
-                           val listener: TaskListener = TaskListener.NULL) : Serializable, ClientInputFile {
+abstract class FileDetails(var parameters: Parameters, val filePath: String)
+    : Serializable, ClientInputFile {
 
     val changedByUsers: HashSet<GitUtil.GameUser> = hashSetOf()
     val file: File
@@ -54,11 +54,8 @@ abstract class FileDetails(var parameters: Parameters, val filePath: String,
         //Build path to checkstyle html file
         val checkstylePath = StringBuilder(parameters.remote)
 
-        checkstyleHTMLFile = File(checkstylePath.toString() + parameters.checkstyleResultsPath.substring(2))
-        if (!checkstyleHTMLFile.exists() && listener != TaskListener.NULL) {
-            listener.logger.println("[Gamekins] checkstyleHTMLPath: " + checkstyleHTMLFile.absolutePath
-                    + Constants.EXISTS + checkstyleHTMLFile.exists())
-        }
+        checkstyleHTMLFile = File(checkstylePath.toString() +
+                parameters.checkstyleResultsPath.substring(2))
 
         //Compute class, package and extension name
         val lastPartOfFile = pathSplit[pathSplit.size - 1]

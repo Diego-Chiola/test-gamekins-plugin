@@ -32,7 +32,7 @@ import java.io.File
 class TestFileDetails(parameters: Parameters,
                       filePath: String,
                       listener: TaskListener = TaskListener.NULL)
-    : FileDetails(parameters, filePath, listener) {
+    : FileDetails(parameters, filePath) {
 
     private val junitFile: File
     val testCount: Int

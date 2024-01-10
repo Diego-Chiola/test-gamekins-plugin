@@ -31,7 +31,7 @@ import java.io.File
 class SourceFileDetails(parameters: Parameters,
                         filePath: String,
                         listener: TaskListener = TaskListener.NULL)
-    : FileDetails(parameters, filePath, listener)  {
+    : FileDetails(parameters, filePath)  {
 
     val coverage: Double
     val jacocoCSVFile: File

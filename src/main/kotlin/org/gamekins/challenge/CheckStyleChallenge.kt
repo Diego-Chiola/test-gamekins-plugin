@@ -13,7 +13,7 @@ import java.io.File
 import kotlin.random.Random
 
 class CheckStyleChallenge(data: Challenge.ChallengeGenerationData,
-                          private val errorsList: ArrayList<CheckstyleUtil.CheckstyleErrorData>
+                          private var errorsList: ArrayList<CheckstyleUtil.CheckstyleErrorData>
 )
     : Challenge {
 
@@ -55,28 +55,18 @@ class CheckStyleChallenge(data: Challenge.ChallengeGenerationData,
     }
 
     override fun isSolvable(parameters: Parameters, run: Run<*, *>, listener: TaskListener): Boolean {
-        if (details.parameters.branch != parameters.branch) {
-            listener.logger.println("\nisSolvable if branch return TRUE")
-            return true
-        }
-        if (!details.update(parameters).filesExists()) {
-            listener.logger.println("\nisSolvable if file exist return FALSE")
-            return false
-        }
-
-        for (i in errorsList)
-            listener.logger.println("isSolvable errorList: ${i.rule} ")
-        listener.logger.println("\nisSolvable chosenError: $chosenError\n")
-        listener.logger.println("isSolvable errorLineContent: $errorLineContent\n")
+        //if (details.parameters.branch != parameters.branch) return true
+        if (!details.update(parameters).filesExists()) return false
 
         val checkstyleHTMLFile = JacocoUtil.calculateCurrentFilePath(parameters.workspace,
             details.checkstyleHTMLFile, details.parameters.remote)
         val sourceFilePath = JacocoUtil.calculateCurrentFilePath(parameters.workspace,
             details.file, details.parameters.remote)
         val newSourceFile = File(sourceFilePath.remote)
-        listener.logger.println("isSolvable newSourceFile absolutePath: ${newSourceFile.absolutePath}")
 
-        val document: Document = try {
+        if (!newSourceFile.exists()) return false
+
+        try {
             if (!checkstyleHTMLFile.exists()) {
                 listener.logger.println("[Gamekins] checkstyle source file "
                         + checkstyleHTMLFile.remote + Constants.EXISTS + checkstyleHTMLFile.exists())
@@ -87,42 +77,15 @@ class CheckStyleChallenge(data: Challenge.ChallengeGenerationData,
             e.printStackTrace(listener.logger)
             return false
         }
-
-        val newErrorsChosenRuleTypeList = updatedErrorList(document, sourceFilePath, listener)
-        if (newErrorsChosenRuleTypeList == null){
-            listener.logger.println("isSolved newErrorsChosenRuleTypeList is null FALSE")
-            return false
-        }
-        if (newErrorsChosenRuleTypeList.isEmpty()){
-            listener.logger.println("isSolved newErrorsChosenRuleTypeList is empty TRUE")
-            return true
-        }
-        for (a in newErrorsChosenRuleTypeList)
-            listener.logger.println("isSolvable newErrorsChosenRuleTypeList Rule and Line: ${a.rule} ${a.line}\n")
-
-
-        for (error in newErrorsChosenRuleTypeList){
-            if (CheckstyleUtil.getLineContent(newSourceFile, error.line.toInt()) == errorLineContent) {
-                listener.logger.println("isSolvable found same error, not solved yet, update error")
-                chosenError = error
-            }
-        }
         return true
     }
 
     override fun isSolved(parameters: Parameters, run: Run<*, *>, listener: TaskListener): Boolean {
-
-        for (i in errorsList)
-            listener.logger.println("isSolved errorList: ${i.rule} ")
-        listener.logger.println("\nisSolved chosenError: $chosenError\n")
-        listener.logger.println("isSolved errorLineContent: $errorLineContent\n")
-
         val checkstyleHTMLFile = JacocoUtil.calculateCurrentFilePath(parameters.workspace,
             details.checkstyleHTMLFile, details.parameters.remote)
         val sourceFilePath = JacocoUtil.calculateCurrentFilePath(parameters.workspace,
             details.file, details.parameters.remote)
         val newSourceFile = File(sourceFilePath.remote)
-        listener.logger.println("isSolved newSourceFile absolutePath: ${newSourceFile.absolutePath}")
 
         if (!checkstyleHTMLFile.exists() || !sourceFilePath.exists()) return false
 
@@ -133,25 +96,16 @@ class CheckStyleChallenge(data: Challenge.ChallengeGenerationData,
             return false
         }
 
-        val newErrorsChosenRuleTypeList = updatedErrorList(document, sourceFilePath, listener)
-        if (newErrorsChosenRuleTypeList == null){
-            listener.logger.println("isSolved newErrorsChosenRuleTypeList is null FALSE")
-            return false
-        }
-        if (newErrorsChosenRuleTypeList.isEmpty()){
-            listener.logger.println("isSolved newErrorsChosenRuleTypeList is empty TRUE")
-            return true
-        }
-        for (a in newErrorsChosenRuleTypeList)
-            listener.logger.println("isSolved newErrorsChosenRuleTypeList Rule and Line: ${a.rule} ${a.line}\n")
+        val newErrorsChosenRuleTypeList = updatedErrorList(document, sourceFilePath) ?: return true
 
         for (error in newErrorsChosenRuleTypeList){
-            if (CheckstyleUtil.getLineContent(newSourceFile, error.line.toInt()) == errorLineContent) {
-                listener.logger.println("isSolved found same error, not solved yet")
+            if (CheckstyleUtil.getLineContent(newSourceFile, error.line.toInt()) == errorLineContent
+                && errorsList.size == newErrorsChosenRuleTypeList.size) {
+                chosenError = error
+                errorsList = newErrorsChosenRuleTypeList
                 return false
             }
         }
-
         solved = System.currentTimeMillis()
         return true
     }
@@ -183,11 +137,9 @@ class CheckStyleChallenge(data: Challenge.ChallengeGenerationData,
         return result
     }
 
-    private fun updatedErrorList(document: Document, sourceFilePath: FilePath, listener: TaskListener)
+    private fun updatedErrorList(document: Document, sourceFilePath: FilePath)
         : ArrayList<CheckstyleUtil.CheckstyleErrorData>? {
-        val newErrorsList = CheckstyleUtil.getFileStyleErrors(document, sourceFilePath, listener) ?: return null
-
-        if (newErrorsList.isEmpty()) return  newErrorsList
+        val newErrorsList = CheckstyleUtil.getFileStyleErrors(document, sourceFilePath) ?: return null
 
         val newErrorsChosenRuleTypeList = ArrayList<CheckstyleUtil.CheckstyleErrorData>()
         for (error in newErrorsList)

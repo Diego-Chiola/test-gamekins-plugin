@@ -14,7 +14,7 @@ object CheckstyleUtil {
      * errors deemed relevant can be added or removed as desired. List of possible check can be found
      * here https://checkstyle.sourceforge.io/sun_style.html.
      */
-    fun getFileStyleErrors(document: Document, filepath: FilePath, listener: TaskListener)
+    fun getFileStyleErrors(document: Document, filepath: FilePath)
     : ArrayList<CheckstyleErrorData>? {
         val anchorElements = document.select(buildTagName(filepath))
 
@@ -29,7 +29,7 @@ object CheckstyleUtil {
             val rowElements = tableElement.select("td")
             var error: CheckstyleErrorData? = null
             when (rowElements[2].text()) {
-                "MissingJavadocMethod", "FinalParameters", "InnerAssignment",
+                "MissingJavadocMethod", "FinalLocalVariable", "InnerAssignment",
                 "SimplifyBooleanExpression", "FinalClass", "HideUtilityClassConstructor",
                 "InnerTypeLast", "OneTopLevelClass", "MutableException", "UnusedImports",
                 "JavadocMissingWhitespaceAfterAsterisk", "MissingJavadocPackage",
@@ -45,9 +45,6 @@ object CheckstyleUtil {
             if (error != null) errorList.add(error)
         }
         if (errorList.isEmpty()) return null
-        for (error in errorList)
-            listener.logger.println("error:\n" +
-                    "${error.category}\n${error.rule}\n${error.message}\n${error.line}")
         return errorList
     }
 
@@ -73,6 +70,17 @@ object CheckstyleUtil {
     }
 
     /**
+     * Removes the errors of a specific [rule] type from a [errorsList]
+     */
+    fun excludeRuleFromErrorsList(errorsList: ArrayList<CheckstyleErrorData>, rule: String)
+    : ArrayList<CheckstyleErrorData> {
+        val filteredErrorList = ArrayList<CheckstyleErrorData>()
+        for (error in errorsList)
+            if (error.rule != rule) filteredErrorList.add(error)
+        return filteredErrorList
+    }
+
+    /**
      * Starting from a source or test file path [filepath] build the tag name associated to the file
      * table in checkstyle.html
      */
@@ -94,5 +102,5 @@ object CheckstyleUtil {
         var rule: String = "",
         var message: String = "",
         var line: String = ""
-    ) : Serializable
+    )
 }
