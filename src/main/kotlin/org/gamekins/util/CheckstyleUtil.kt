@@ -1,10 +1,8 @@
 package org.gamekins.util
 
 import hudson.FilePath
-import hudson.model.TaskListener
 import org.jsoup.nodes.Document
 import java.io.File
-import java.io.Serializable
 
 object CheckstyleUtil {
 

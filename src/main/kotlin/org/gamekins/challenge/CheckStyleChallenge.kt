@@ -10,7 +10,6 @@ import org.gamekins.util.JsoupUtil
 import org.gamekins.util.CheckstyleUtil
 import org.jsoup.nodes.Document
 import java.io.File
-import kotlin.random.Random
 
 class CheckStyleChallenge(data: Challenge.ChallengeGenerationData,
                           private var errorsList: ArrayList<CheckstyleUtil.CheckstyleErrorData>
